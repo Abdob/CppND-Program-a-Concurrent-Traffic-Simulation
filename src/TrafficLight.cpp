@@ -19,6 +19,9 @@ void MessageQueue<T>::send(T &&msg)
 {
     // FP.4a : The method send should use the mechanisms std::lock_guard<std::mutex> 
     // as well as _condition.notify_one() to add a new message to the queue and afterwards send a notification.
+    std::lock_guard<std::mutex> lock(_mtx);
+    _queue.push_back(std::move(msg));
+    _cond.notify_one();
 }
 
 
@@ -53,11 +56,8 @@ void TrafficLight::simulate()
 void TrafficLight::cycleThroughPhases()
 {
     // FP.2a : Implement the function with an infinite loop that measures the time between two loop cycles 
-
     // and toggles the current phase of the traffic light between red and green and sends an update method 
-
     // to the message queue using move semantics. The cycle duration should be a random value between 4 and 6 seconds. 
-
     // Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
     std::cout << "Entering cycleThroughPhases()" << std::endl;
     float cycle_ms = float(rand() % 1000) / 500.0f + 4.0f;
